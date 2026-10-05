@@ -6,6 +6,7 @@ WIDTH, HEIGHT = 1200, 800
 FOLDER = Path(__file__).resolve().parent
 FRAME_TIME = 0.1
 REPEATS = 5
+PAUSE_TIME = 1.0
 ANIMATIONS = [
     {'name': '대기', 'frames': [
         (1, 39, 29, 39), (31, 40, 26, 38), (58, 39, 28, 39),
@@ -86,6 +87,8 @@ def play(sheet, action):
                 if event.type == SDL_QUIT:
                     return False
             delay(FRAME_TIME)
+    # 화면을 지우지 않아 마지막 자세가 그대로 남는다.
+    delay(PAUSE_TIME)
     return True
 
 
