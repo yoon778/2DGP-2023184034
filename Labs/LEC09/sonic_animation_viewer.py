@@ -70,21 +70,29 @@ ANIMATIONS = [
     ]},
 ]
 
+# 같은 줄의 바닥 높이를 보존해 잘린 여백 때문에 위아래로 튀지 않게 한다.
+for action in ANIMATIONS:
+    bottom = max(y + h for x, y, w, h in action['frames'])
+    action['offsets'] = [(0, bottom - y - h) for x, y, w, h in action['frames']]
 
-def draw_frame(sheet, frame):
+
+def draw_frame(sheet, frame, offset=(0, 0)):
     x, y, w, h = frame
+    # 서 있는 기본 자세(높이 39px)의 중심과 바닥을 기준으로 맞춘다.
+    draw_x = WIDTH / 2 + offset[0] * SCALE
+    draw_y = HEIGHT / 2 + ((h - 39) / 2 + offset[1]) * SCALE
     clear_canvas()
     # 위쪽 기준 이미지 좌표를 pico2d의 아래쪽 기준으로 바꾼다.
     sheet.clip_draw(x, sheet.h - y - h, w, h,
-                    WIDTH / 2, HEIGHT / 2, w * SCALE, h * SCALE)
+                    draw_x, draw_y, w * SCALE, h * SCALE)
     update_canvas()
 
 
 def play(sheet, action):
     # 프레임 목록 전체를 끝까지 재생해야 한 번으로 센다.
     for repeat in range(REPEATS):
-        for frame in action['frames']:
-            draw_frame(sheet, frame)
+        for frame, offset in zip(action['frames'], action['offsets']):
+            draw_frame(sheet, frame, offset)
             for event in get_events():
                 if event.type == SDL_QUIT:
                     return False
