@@ -93,7 +93,7 @@ def wait(seconds):
     end = perf_counter() + seconds
     while perf_counter() < end:
         for event in get_events():
-            if event.type == SDL_QUIT:
+            if event.type == SDL_QUIT or (event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE):
                 return False
         delay(min(0.01, max(0, end - perf_counter())))
     return True
@@ -112,15 +112,17 @@ def play(sheet, action):
 
 def main():
     open_canvas(WIDTH, HEIGHT)
-    hide_lattice()
-    sheet = load_image(str(FOLDER / 'sonic-sprite.png'))
-    running = True
-    while running:
-        for action in ANIMATIONS:
-            if not play(sheet, action):
-                running = False
-                break
-    close_canvas()
+    try:
+        hide_lattice()
+        sheet = load_image(str(FOLDER / 'sonic-sprite.png'))
+        running = True
+        while running:
+            for action in ANIMATIONS:
+                if not play(sheet, action):
+                    running = False
+                    break
+    finally:
+        close_canvas()
 
 
 if __name__ == '__main__':
