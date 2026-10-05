@@ -3,6 +3,7 @@ from pico2d import *
 from pathlib import Path
 
 WIDTH, HEIGHT = 1200, 800
+SCALE = 10
 FOLDER = Path(__file__).resolve().parent
 FRAME_TIME = 0.1
 REPEATS = 5
@@ -74,7 +75,8 @@ def draw_frame(sheet, frame):
     x, y, w, h = frame
     clear_canvas()
     # 위쪽 기준 이미지 좌표를 pico2d의 아래쪽 기준으로 바꾼다.
-    sheet.clip_draw(x, sheet.h - y - h, w, h, WIDTH / 2, HEIGHT / 2)
+    sheet.clip_draw(x, sheet.h - y - h, w, h,
+                    WIDTH / 2, HEIGHT / 2, w * SCALE, h * SCALE)
     update_canvas()
 
 
