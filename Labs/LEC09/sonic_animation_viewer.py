@@ -4,7 +4,7 @@ from pathlib import Path
 from time import perf_counter
 
 WIDTH, HEIGHT = 1200, 800
-SCALE = 10
+SCALE = 5
 FOLDER = Path(__file__).resolve().parent
 FRAME_TIME = 0.1
 REPEATS = 5
