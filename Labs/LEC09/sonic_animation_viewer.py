@@ -4,6 +4,7 @@ from pathlib import Path
 
 WIDTH, HEIGHT = 1200, 800
 FOLDER = Path(__file__).resolve().parent
+FIRST_FRAME = (1, 39, 29, 39)
 
 
 def main():
@@ -13,7 +14,9 @@ def main():
     running = True
     while running:
         clear_canvas()
-        sheet.draw(WIDTH / 2, HEIGHT / 2)
+        x, y, w, h = FIRST_FRAME
+        # 위쪽 기준 이미지 좌표를 pico2d의 아래쪽 기준으로 바꾼다.
+        sheet.clip_draw(x, sheet.h - y - h, w, h, WIDTH / 2, HEIGHT / 2)
         update_canvas()
         for event in get_events():
             if event.type == SDL_QUIT:
