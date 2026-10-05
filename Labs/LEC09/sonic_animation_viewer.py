@@ -71,8 +71,13 @@ ANIMATIONS = [
     ]},
 ]
 
+# 대기 자세는 천천히, 빠르게 움직이는 동작은 짧은 간격으로 보여준다.
+TIMES = [0.25, 0.18, 0.30, 0.25, 0.08, 0.08, 0.07, 0.30,
+         0.06, 0.085, 0.065, 0.13, 0.18, 0.10, 0.20, 0.24]
+
 # 같은 줄의 바닥 높이를 보존해 잘린 여백 때문에 위아래로 튀지 않게 한다.
-for action in ANIMATIONS:
+for action, seconds in zip(ANIMATIONS, TIMES):
+    action['time'] = seconds
     bottom = max(y + h for x, y, w, h in action['frames'])
     action['offsets'] = [(0, bottom - y - h) for x, y, w, h in action['frames']]
 
@@ -104,7 +109,7 @@ def play(sheet, action):
     for repeat in range(REPEATS):
         for frame, offset in zip(action['frames'], action['offsets']):
             draw_frame(sheet, frame, offset)
-            if not wait(FRAME_TIME):
+            if not wait(action['time']):
                 return False
     # 화면을 지우지 않아 마지막 자세가 그대로 남는다.
     return wait(PAUSE_TIME)
