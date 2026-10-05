@@ -4,8 +4,20 @@ from pathlib import Path
 
 WIDTH, HEIGHT = 1200, 800
 FOLDER = Path(__file__).resolve().parent
-FRAMES = [(1, 39, 29, 39), (31, 40, 26, 38), (58, 39, 28, 39)]
 FRAME_TIME = 0.1
+ANIMATIONS = [
+    {'name': '대기', 'frames': [
+        (1, 39, 29, 39), (31, 40, 26, 38), (58, 39, 28, 39),
+    ]},
+]
+
+
+def draw_frame(sheet, frame):
+    x, y, w, h = frame
+    clear_canvas()
+    # 위쪽 기준 이미지 좌표를 pico2d의 아래쪽 기준으로 바꾼다.
+    sheet.clip_draw(x, sheet.h - y - h, w, h, WIDTH / 2, HEIGHT / 2)
+    update_canvas()
 
 
 def main():
@@ -14,16 +26,13 @@ def main():
     sheet = load_image(str(FOLDER / 'sonic-sprite.png'))
     running = True
     frame = 0
+    frames = ANIMATIONS[0]['frames']
     while running:
-        clear_canvas()
-        x, y, w, h = FRAMES[frame]
-        # 위쪽 기준 이미지 좌표를 pico2d의 아래쪽 기준으로 바꾼다.
-        sheet.clip_draw(x, sheet.h - y - h, w, h, WIDTH / 2, HEIGHT / 2)
-        update_canvas()
+        draw_frame(sheet, frames[frame])
         for event in get_events():
             if event.type == SDL_QUIT:
                 running = False
-        frame = (frame + 1) % len(FRAMES)
+        frame = (frame + 1) % len(frames)
         delay(FRAME_TIME)
     close_canvas()
 
