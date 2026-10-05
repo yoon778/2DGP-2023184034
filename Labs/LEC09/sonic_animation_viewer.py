@@ -5,6 +5,7 @@ from pathlib import Path
 WIDTH, HEIGHT = 1200, 800
 FOLDER = Path(__file__).resolve().parent
 FRAME_TIME = 0.1
+REPEATS = 5
 ANIMATIONS = [
     {'name': '대기', 'frames': [
         (1, 39, 29, 39), (31, 40, 26, 38), (58, 39, 28, 39),
@@ -76,20 +77,23 @@ def draw_frame(sheet, frame):
     update_canvas()
 
 
+def play(sheet, action):
+    # 프레임 목록 전체를 끝까지 재생해야 한 번으로 센다.
+    for repeat in range(REPEATS):
+        for frame in action['frames']:
+            draw_frame(sheet, frame)
+            for event in get_events():
+                if event.type == SDL_QUIT:
+                    return False
+            delay(FRAME_TIME)
+    return True
+
+
 def main():
     open_canvas(WIDTH, HEIGHT)
     hide_lattice()
     sheet = load_image(str(FOLDER / 'sonic-sprite.png'))
-    running = True
-    frame = 0
-    frames = ANIMATIONS[0]['frames']
-    while running:
-        draw_frame(sheet, frames[frame])
-        for event in get_events():
-            if event.type == SDL_QUIT:
-                running = False
-        frame = (frame + 1) % len(frames)
-        delay(FRAME_TIME)
+    play(sheet, ANIMATIONS[0])
     close_canvas()
 
 
