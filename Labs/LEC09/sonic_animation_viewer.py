@@ -96,9 +96,12 @@ def main():
     open_canvas(WIDTH, HEIGHT)
     hide_lattice()
     sheet = load_image(str(FOLDER / 'sonic-sprite.png'))
-    for action in ANIMATIONS:
-        if not play(sheet, action):
-            break
+    running = True
+    while running:
+        for action in ANIMATIONS:
+            if not play(sheet, action):
+                running = False
+                break
     close_canvas()
 
 
