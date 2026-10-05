@@ -82,11 +82,28 @@ for action, seconds in zip(ANIMATIONS, TIMES):
     action['offsets'] = [(0, bottom - y - h) for x, y, w, h in action['frames']]
 
 
-def draw_frame(sheet, frame, offset=(0, 0)):
+def move(name, progress):
+    # 5회 재생 전체를 0~1로 계산해 프레임이 반복되어도 이동은 이어진다.
+    if name in ('걷기', '달리기', '몸 말아 회전', '빠른 회전', '빠르게 달리기'):
+        return -350 + 700 * progress, 0
+    if name == '정면 달리기':
+        return -250 + 500 * progress, 100 - 180 * progress
+    if name == '공중 돌기':
+        return -200 + 400 * progress, 180 * 4 * progress * (1 - progress)
+    if name == '뒤로 넘어지기':
+        return 120 - 240 * progress, 120 * 4 * progress * (1 - progress)
+    if name == '멈추기':
+        return -300 + 500 * (1 - (1 - progress) ** 2), 0
+    if name == '떨어지기':
+        return 0, 200 - 400 * progress ** 2
+    return 0, 0
+
+
+def draw_frame(sheet, frame, offset=(0, 0), pos=(0, 0)):
     x, y, w, h = frame
     # 서 있는 기본 자세(높이 39px)의 중심과 바닥을 기준으로 맞춘다.
-    draw_x = WIDTH / 2 + offset[0] * SCALE
-    draw_y = HEIGHT / 2 + ((h - 39) / 2 + offset[1]) * SCALE
+    draw_x = WIDTH / 2 + offset[0] * SCALE + pos[0]
+    draw_y = HEIGHT / 2 + ((h - 39) / 2 + offset[1]) * SCALE + pos[1]
     clear_canvas()
     # 위쪽 기준 이미지 좌표를 pico2d의 아래쪽 기준으로 바꾼다.
     sheet.clip_draw(x, sheet.h - y - h, w, h,
@@ -105,13 +122,23 @@ def wait(seconds):
 
 
 def play(sheet, action):
+    frames = action['frames']
+    frame_time = action.get('time', FRAME_TIME)
+    total = len(frames) * REPEATS
     # 프레임 목록 전체를 끝까지 재생해야 한 번으로 센다.
     for repeat in range(REPEATS):
-        for frame, offset in zip(action['frames'], action['offsets']):
-            draw_frame(sheet, frame, offset)
-            if not wait(action.get('time', FRAME_TIME)):
-                return False
-    # 화면을 지우지 않아 마지막 자세가 그대로 남는다.
+        for index, (frame, offset) in enumerate(zip(frames, action['offsets'])):
+            start = perf_counter()
+            while True:
+                elapsed = min(perf_counter() - start, frame_time)
+                progress = (repeat * len(frames) + index + elapsed / frame_time) / total
+                draw_frame(sheet, frame, offset, move(action['name'], progress))
+                if elapsed >= frame_time:
+                    break
+                # 그림은 같은 프레임이어도 위치는 약 60회/초 갱신한다.
+                if not wait(min(1 / 60, frame_time - elapsed)):
+                    return False
+    # 마지막 자세와 도착 위치를 함께 유지한다.
     return wait(PAUSE_TIME)
 
 
