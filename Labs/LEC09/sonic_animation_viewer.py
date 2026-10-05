@@ -109,17 +109,25 @@ def play(sheet, action):
     for repeat in range(REPEATS):
         for frame, offset in zip(action['frames'], action['offsets']):
             draw_frame(sheet, frame, offset)
-            if not wait(action['time']):
+            if not wait(action.get('time', FRAME_TIME)):
                 return False
     # 화면을 지우지 않아 마지막 자세가 그대로 남는다.
     return wait(PAUSE_TIME)
 
 
 def main():
+    image_path = FOLDER / 'sonic-sprite.png'
+    if not image_path.is_file():
+        print(f'이미지 파일이 필요합니다: {image_path}')
+        return
     open_canvas(WIDTH, HEIGHT)
     try:
         hide_lattice()
-        sheet = load_image(str(FOLDER / 'sonic-sprite.png'))
+        try:
+            sheet = load_image(str(image_path))
+        except OSError:
+            print(f'이미지 파일을 읽을 수 없습니다: {image_path}')
+            return
         running = True
         while running:
             for action in ANIMATIONS:
