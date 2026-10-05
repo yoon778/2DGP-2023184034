@@ -1,6 +1,7 @@
 """소닉 스프라이트 시트의 동작을 차례로 보여준다."""
 from pico2d import *
 from pathlib import Path
+from time import perf_counter
 
 WIDTH, HEIGHT = 1200, 800
 SCALE = 10
@@ -88,18 +89,25 @@ def draw_frame(sheet, frame, offset=(0, 0)):
     update_canvas()
 
 
+def wait(seconds):
+    end = perf_counter() + seconds
+    while perf_counter() < end:
+        for event in get_events():
+            if event.type == SDL_QUIT:
+                return False
+        delay(min(0.01, max(0, end - perf_counter())))
+    return True
+
+
 def play(sheet, action):
     # 프레임 목록 전체를 끝까지 재생해야 한 번으로 센다.
     for repeat in range(REPEATS):
         for frame, offset in zip(action['frames'], action['offsets']):
             draw_frame(sheet, frame, offset)
-            for event in get_events():
-                if event.type == SDL_QUIT:
-                    return False
-            delay(FRAME_TIME)
+            if not wait(FRAME_TIME):
+                return False
     # 화면을 지우지 않아 마지막 자세가 그대로 남는다.
-    delay(PAUSE_TIME)
-    return True
+    return wait(PAUSE_TIME)
 
 
 def main():
