@@ -26,6 +26,8 @@ class Grass:
     def update(self): pass
 
 
+
+
 class Boy:
     def __init__(self):
             self.x = random.randint(100, 700)
