@@ -1,4 +1,5 @@
 from pico2d import *
+from time import perf_counter
 import random
 
 from boy import Boy 
@@ -18,6 +19,8 @@ def handle_events():
             running = False
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             running = False
+        else:
+            boy.handle_event(event)
 
 
 def reset_world():
@@ -34,9 +37,9 @@ def reset_world():
 
 
 
-def update_world():
+def update_world(dt):
     for o in world:
-        o.update()
+        o.update(dt)
     pass
 
 
@@ -52,10 +55,15 @@ running = True
 open_canvas()
 reset_world()
 # game loop
+last_time = perf_counter()
 while running:
+    start_time = perf_counter()
+    # 잠깐 멈췄다가 돌아와도 캐릭터가 한 번에 크게 이동하지 않게 한다.
+    dt = min(start_time - last_time, 0.1)
+    last_time = start_time
     handle_events()
-    update_world()
+    update_world(dt)
     render_world()
-    delay(0.1)  # IDLE 애니메이션을 초당 약 10프레임으로 재생한다.
+    delay(max(0, 1 / 60 - (perf_counter() - start_time)))
 # finalization code
 close_canvas()
