@@ -25,6 +25,8 @@ def reset_world():
     global boy
 
     world = []
+
+    
     
     boy = Boy()
     game_world.add_object(boy, 1)
