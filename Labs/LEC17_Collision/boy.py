@@ -144,6 +144,8 @@ class Boy:
         ball = Ball(self.x + self.face_dir * 40, self.y + 60, self.face_dir,
                     1 if self.item == 'Ball' else 2)
         game_world.add_oject(ball)
+        game_world.add_collision_pair('grass:ball', None, ball)
+        game_world.add_collision_pair('boy:ball', None, ball)
 
     def pause(self):
         self.pressed_keys.clear()
@@ -186,3 +188,8 @@ class Boy:
 
     def get_bb(self):
         return self.x - 25 , self.y -25 , self.x + 25, self.y +25
+
+    def handle_collision(self, group, other):
+        if group == 'boy:ball':
+            print('COLLISION boy:ball')
+            self.ball_count += 1
