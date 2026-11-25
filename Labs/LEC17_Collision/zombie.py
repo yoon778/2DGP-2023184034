@@ -17,7 +17,7 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
 
-MIN_X, MAX_X = 800, 1600  # 좀비가 오가는 구간
+MIN_X, MAX_X = 800, 1500  # 너비 200인 좀비가 화면 안에서 오가는 구간
 
 
 class Zombie:
